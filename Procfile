@@ -1,0 +1,1 @@
+web: java -jar build/libs/oauth-0.0.1.jar
