@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DockerController {
 
   @Value("${DB_HOST}")
-  private String rabbitmqHost;
+  private String dbHost;
 
   @RequestMapping("/")
   public String index() {
-    return "Hello Index!" + rabbitmqHost;
+    return "Hello Index!" + dbHost;
   }
 }
