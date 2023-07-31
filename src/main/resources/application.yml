@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        web: trace
+        security: info
+        oauth2: trace
+
+spring:
+  config:
+    # 引入环境变量
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 123
+            client-secret: 123
+
