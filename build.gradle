@@ -21,9 +21,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	//  必须有，否则无法识别 templates 里面的页面
+	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+	// 下面这三个是一些登录的静态资源
+	implementation "org.webjars:webjars-locator-core"
+	implementation "org.webjars:bootstrap:5.2.3"
+	implementation "org.webjars:jquery:3.6.4"
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	// testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {
