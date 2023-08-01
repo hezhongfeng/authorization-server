@@ -7,7 +7,7 @@ logging:
     org:
       springframework:
         web: trace
-        security: info
+        security: trace
         oauth2: trace
 
 spring:
