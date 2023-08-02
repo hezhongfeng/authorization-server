@@ -21,6 +21,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// 接口文档
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+	// 参数验证
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	//  必须有，否则无法识别 templates 里面的页面
 	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
 	// 下面这三个是一些登录的静态资源
