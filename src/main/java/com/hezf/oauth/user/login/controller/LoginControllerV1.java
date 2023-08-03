@@ -7,6 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,8 @@ import com.hezf.oauth.user.login.payload.LoginResultNew;
 import com.hezf.oauth.user.payload.CurrentResult;
 import com.hezf.oauth.user.repo.UserRepo;
 import com.hezf.oauth.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,11 +41,15 @@ public class LoginControllerV1 {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LoginControllerV1.class);
 
+  private SecurityContextRepository securityContextRepository =
+      new HttpSessionSecurityContextRepository();
+
   /**
    * 登录
    */
   @PostMapping("/login")
-  public RespResult<Object> login(@RequestBody LoginRequest login) {
+  public RespResult<Object> login(@RequestBody LoginRequest login, HttpServletRequest request,
+      HttpServletResponse response) {
 
     String username = login.getUsername();
     String password = login.getPassword();
@@ -76,6 +84,7 @@ public class LoginControllerV1 {
     context.setAuthentication(authentication);
 
     SecurityContextHolder.setContext(context);
+    securityContextRepository.saveContext(context, request, response);
 
     // // 首先检查是否和当前用户匹配
     // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
