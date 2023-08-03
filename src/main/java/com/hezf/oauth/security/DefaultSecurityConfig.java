@@ -6,8 +6,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import com.hezf.oauth.authentication.federation.FederatedIdentityAuthenticationSuccessHandler;
 
 
@@ -24,10 +27,10 @@ public class DefaultSecurityConfig {
     String[] antMatchersAnonymous = {"/api/v1/login/**", "/api/v1/refresh-token/**", "/public/**",
         "/assets/**", "/webjars/**", "/login"};
     return web -> web.ignoring()
-        // 放行所有OPTIONS请求
-        .requestMatchers(HttpMethod.OPTIONS)
         // 开放一些路由
-        .requestMatchers(antMatchersAnonymous);
+        .requestMatchers(antMatchersAnonymous)
+        // 放行所有OPTIONS请求
+        .requestMatchers(HttpMethod.OPTIONS);
   }
 
   @Bean
@@ -65,15 +68,15 @@ public class DefaultSecurityConfig {
 	// }
 	// // @formatter:on
 
-  // // 下面这俩好像没啥用啊
+  // 下面这俩好像没啥用啊
   // @Bean
   // public SessionRegistry sessionRegistry() {
-  // return new SessionRegistryImpl();
+  //   return new SessionRegistryImpl();
   // }
 
   // @Bean
   // public HttpSessionEventPublisher httpSessionEventPublisher() {
-  // return new HttpSessionEventPublisher();
+  //   return new HttpSessionEventPublisher();
   // }
 
 }
