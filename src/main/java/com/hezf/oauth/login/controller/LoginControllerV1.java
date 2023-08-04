@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.hezf.oauth.login.payload.LoginRequest;
-import com.hezf.oauth.login.payload.LoginResultNew;
 import com.hezf.oauth.user.config.RespResult;
 import com.hezf.oauth.user.entity.User;
 import com.hezf.oauth.user.payload.CurrentResult;
 import com.hezf.oauth.user.repo.UserRepo;
 import com.hezf.oauth.user.service.UserService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -51,10 +51,13 @@ public class LoginControllerV1 {
 
   /**
    * 登录
+   * 
+   * @throws ServletException
+   * @throws IOException
    */
   @PostMapping("/login")
   public RespResult<Object> login(@RequestBody LoginRequest login, HttpServletRequest request,
-      HttpServletResponse response) {
+      HttpServletResponse response) throws IOException, ServletException {
 
     String username = login.getUsername();
     String password = login.getPassword();
@@ -84,13 +87,11 @@ public class LoginControllerV1 {
 
     SecurityContextHolder.setContext(context);
     securityContextRepository.saveContext(context, request, response);
+
+    // 对于手动登录，需要运行 successHandler（SavedRequestAwareAuthenticationSuccessHandler），以便继续授权流程
     successHandler.onAuthenticationSuccess(request, response, authentication);
 
-    // // 首先检查是否和当前用户匹配
-    // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    // Long userId = Long.parseLong(authentication.getPrincipal().toString());
-    // User contentUser = userRepo.findById(userId).get();
-
+    // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
     return new RespResult<Object>(200, "登录成功", null);
   }
 
