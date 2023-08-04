@@ -1,4 +1,4 @@
-package com.hezf.oauth.user.login.payload;
+package com.hezf.oauth.login.payload;
 
 public class LoginResult {
 
