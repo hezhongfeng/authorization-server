@@ -63,8 +63,15 @@ public class AuthorizationServerConfig {
 		// @formatter:on
 
 		// @formatter:off
+		// 注意，这里不能分开写，不知道为什么。。。
 		http
-			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+			.exceptionHandling((exceptions) -> exceptions
+				.defaultAuthenticationEntryPointFor(
+					new LoginUrlAuthenticationEntryPoint("/login"),
+					new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+				)
+			)
+		.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
 		// @formatter:on
 		return http.build();
 	}
