@@ -25,40 +25,24 @@ import com.hezf.oauth.authentication.federation.FederatedIdentityAuthenticationS
 @Configuration(proxyBeanMethods = false)
 public class DefaultSecurityConfig {
 
-  /**
-   * 此方法配置的路由不会进入 Spring Security 机制进行验证
-   */
-  @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-
-    String[] antMatchersAnonymous =
-        {"/api/**", "/public/**", "/assets/**", "/webjars/**", "/login"};
-    return web -> web.ignoring()
-        // 开放一些路由
-        .requestMatchers(antMatchersAnonymous)
-        // 放行所有OPTIONS请求
-        .requestMatchers(HttpMethod.OPTIONS);
-  }
-
+  // @formatter:off
   @Bean
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-    // 除了上面配置的那些，任意请求都需要已登录用户才可以访问
-    http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+    String[] antMatchersAnonymous = {"/api/**", "/public/**", "/assets/**", "/webjars/**", "/login"};
+
+    http
+      .authorizeHttpRequests(authorize -> authorize
+         // 开放一些路由
+        .requestMatchers(antMatchersAnonymous).permitAll()
+        // 放行所有OPTIONS请求
+        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+        //  除了上面的配置，任意请求都需要已登录用户才可以访问
+        .anyRequest().authenticated());
 
     http.formLogin(formLogin -> formLogin.loginPage("/login"))
         .oauth2Login(oauth2Login -> oauth2Login.loginPage("/login")
             .successHandler(authenticationSuccessHandler())); // 登录成功后继续之前的授权行为
-
-    // // 设置异常的EntryPoint的处理
-    // http.exceptionHandling(exceptions -> exceptions
-    // // 未登录
-    // .authenticationEntryPoint(new MyAuthenticationEntryPoint())
-    // // 权限不足
-    // .accessDeniedHandler(new MyAccessDeniedHandler()));
-
-    // http.oauth2Login(oauth2Login -> oauth2Login.loginPage("/login")
-    // .successHandler(authenticationSuccessHandler()));
 
     // 认证失败的处理
     http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
@@ -67,6 +51,7 @@ public class DefaultSecurityConfig {
 
     return http.build();
   }
+  // @formatter:on
 
   private AuthenticationSuccessHandler authenticationSuccessHandler() {
     return new FederatedIdentityAuthenticationSuccessHandler();
@@ -83,16 +68,5 @@ public class DefaultSecurityConfig {
 		return new InMemoryUserDetailsManager(user);
 	}
 	// @formatter:on
-
-  // 下面这俩好像没啥用啊
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
-  }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    return new HttpSessionEventPublisher();
-  }
 
 }
