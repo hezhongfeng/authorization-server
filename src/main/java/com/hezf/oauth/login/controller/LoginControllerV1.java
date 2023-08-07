@@ -49,6 +49,13 @@ public class LoginControllerV1 {
   private final AuthenticationSuccessHandler successHandler =
       new SavedRequestAwareAuthenticationSuccessHandler();
 
+
+  @GetMapping("/login")
+  public RespResult<Object> login() throws IOException, ServletException {
+    // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
+    return new RespResult<Object>(200, "login成功", null);
+  }
+
   /**
    * 登录
    * 

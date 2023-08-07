@@ -16,9 +16,11 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JWTProvider {
@@ -27,8 +29,9 @@ public class JWTProvider {
 	private static Key jwtSecret;
 
 	@Value("${jwt.secret}")
-	public void setJwtSecret(Key secret) {
-		jwtSecret = secret;
+	public void setJwtSecret(String secret) {
+		byte[] decodedKey = Base64.getDecoder().decode(secret);
+		jwtSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 	}
 
 	private static int jwtExpirationInMs;

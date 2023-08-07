@@ -15,8 +15,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class RefreshProvider {
@@ -25,8 +27,9 @@ public class RefreshProvider {
 	private static Key refreshSecret;
 
 	@Value("${refresh.secret}")
-	public void setRefreshSecret(Key secret) {
-		refreshSecret = secret;
+	public void setRefreshSecret(String secret) {
+		byte[] decodedKey = Base64.getDecoder().decode(secret);
+		refreshSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 	}
 
 	private static int jwtExpirationInMs;
