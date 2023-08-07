@@ -21,7 +21,9 @@ public class DefaultSecurityConfig {
   @Bean
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-    String[] antMatchersAnonymous = {"/api/**", "/public/**", "/assets/**", "/webjars/**", "/login"};
+    String[] antMatchersAnonymous = {"/api/*", "/public/**", "/assets/**", "/webjars/**", "/login"};
+
+    // http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
     http
       .authorizeHttpRequests(authorize -> authorize
@@ -31,6 +33,8 @@ public class DefaultSecurityConfig {
         .requestMatchers(HttpMethod.OPTIONS).permitAll()
         //  除了上面的配置，任意请求都需要已登录用户才可以访问
         .anyRequest().authenticated())
+        // .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+        .csrf(csrf -> csrf.disable())
         .formLogin(formLogin -> formLogin.loginPage("/login"))
         .oauth2Login(oauth2Login -> oauth2Login.loginPage("/login").successHandler(authenticationSuccessHandler())); // 登录成功后继续之前的授权行为;
 
