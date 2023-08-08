@@ -76,27 +76,27 @@ public class LoginControllerV1 {
       return new RespResult<Object>(201, "账号或密码错误", null);
     }
 
-    // 获取完整用户信息
-    CurrentResult currentUser = userService.getCurrentUser(login.getUsername());
+    // // 获取完整用户信息
+    // CurrentResult currentUser = userService.getCurrentUser(login.getUsername());
 
-    // 权限列表
-    List<SimpleGrantedAuthority> permissions = currentUser.getPermissions().stream()
-        .map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
+    // // 权限列表
+    // List<SimpleGrantedAuthority> permissions = currentUser.getPermissions().stream()
+    //     .map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
 
-    // 设置空的上下文
-    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    // // 设置空的上下文
+    // SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-    // 存储当前用户信息，这里最好存储 username,和authentication的 定义一致,不要存 userId
-    Authentication authentication =
-        new UsernamePasswordAuthenticationToken(username, null, permissions);
+    // // 存储当前用户信息，这里最好存储 username,和authentication的 定义一致,不要存 userId
+    // Authentication authentication =
+    //     new UsernamePasswordAuthenticationToken(username, null, permissions);
 
-    context.setAuthentication(authentication);
+    // context.setAuthentication(authentication);
 
-    SecurityContextHolder.setContext(context);
-    securityContextRepository.saveContext(context, request, response);
+    // SecurityContextHolder.setContext(context);
+    // securityContextRepository.saveContext(context, request, response);
 
-    // 对于手动登录，需要运行 successHandler（SavedRequestAwareAuthenticationSuccessHandler），以便继续授权流程
-    successHandler.onAuthenticationSuccess(request, response, authentication);
+    // // 对于手动登录，需要运行 successHandler（SavedRequestAwareAuthenticationSuccessHandler），以便继续授权流程
+    // successHandler.onAuthenticationSuccess(request, response, authentication);
 
     // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
     return new RespResult<Object>(200, "登录成功", null);
