@@ -1,16 +1,9 @@
 package com.hezf.oauth.login.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,18 +18,10 @@ import com.hezf.oauth.user.entity.User;
 import com.hezf.oauth.user.payload.CurrentResult;
 import com.hezf.oauth.user.repo.UserRepo;
 import com.hezf.oauth.user.service.UserService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import java.security.Key;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.crypto.SecretKey;
-import org.apache.tomcat.util.net.openssl.ciphers.Encryption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,10 +100,10 @@ public class LoginControllerV1 {
     String token = JWTProvider.generateJWT(currentUser.getUsername(), currentUser.getPermissions());
 
     // 使用 username 做 subject生成 refreshJWT
-    // String refreshToken = RefreshProvider.generateRefreshJWT(user.getUsername());
+    String refreshToken = RefreshProvider.generateRefreshJWT(user.getUsername());
 
     return new RespResult<LoginResult>(200, "登录成功",
-        new LoginResult(token, "", currentUser.getUserId()));
+        new LoginResult(token, refreshToken, currentUser.getUserId()));
 
     // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
     // return new RespResult<LoginResult>(200, "登录成功", null);

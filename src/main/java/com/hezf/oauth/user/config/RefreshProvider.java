@@ -6,8 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -26,20 +22,17 @@ public class RefreshProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(RefreshProvider.class);
 
-	private static Key refreshSecret;
-
-	@Value("${refresh.secret}")
-	public static void setRefreshJWTSecret(String secret) {
-		// byte[] encodeKey = Base64.getDecoder().decode(secret);
-		// refreshSecret = Keys.hmacShaKeyFor(encodeKey);
-		// refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-		refreshSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-	}
+	private static String refreshSecret;
 
 	private static int jwtExpirationInMs;
 
+	@Value("${refresh.secret}")
+	public void setRefreshJWTSecret(String secret) {
+		refreshSecret = secret;
+	}
 
-	public void setRefreshExpirationInMs(@Value("${refresh.expire}") int expire) {
+	@Value("${refresh.expire}")
+	public void setRefreshExpirationInMs(int expire) {
 		jwtExpirationInMs = expire;
 	}
 
@@ -49,8 +42,8 @@ public class RefreshProvider {
 		long currentTimeMillis = System.currentTimeMillis();
 		Date expirationDate = new Date(currentTimeMillis + jwtExpirationInMs * 1000);
 
-		return Jwts.builder().setSubject(subject).signWith(refreshSecret).setExpiration(expirationDate)
-				.compact();
+		return Jwts.builder().setSubject(subject).signWith(SignatureAlgorithm.HS256, refreshSecret)
+				.setExpiration(expirationDate).compact();
 	}
 
 	public static Authentication getAuthentication(String token) {
