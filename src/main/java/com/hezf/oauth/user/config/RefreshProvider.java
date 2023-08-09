@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,35 +20,37 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class RefreshProvider {
-	private static final Logger logger = LoggerFactory.getLogger(JWTProvider.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(RefreshProvider.class);
 
 	private static Key refreshSecret;
 
 	@Value("${refresh.secret}")
-	public void setRefreshSecret(String secret) {
-		byte[] decodedKey = Base64.getDecoder().decode(secret);
-		refreshSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+	public static void setRefreshJWTSecret(String secret) {
+		// byte[] encodeKey = Base64.getDecoder().decode(secret);
+		// refreshSecret = Keys.hmacShaKeyFor(encodeKey);
+		// refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+		refreshSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 	}
 
 	private static int jwtExpirationInMs;
 
-	@Value("${refresh.expire}")
-	public void setRefreshExpirationInMs(int expire) {
+
+	public void setRefreshExpirationInMs(@Value("${refresh.expire}") int expire) {
 		jwtExpirationInMs = expire;
 	}
 
-	// 根据subject生成token
-	public static String generateRefresh(String subject) {
+	// 根据subject生成 jwt
+	public static String generateRefreshJWT(String subject) {
 
 		long currentTimeMillis = System.currentTimeMillis();
 		Date expirationDate = new Date(currentTimeMillis + jwtExpirationInMs * 1000);
 
-		return Jwts.builder().setSubject(subject).signWith(refreshSecret, SignatureAlgorithm.HS256)
-				.setIssuedAt(new Date()).setExpiration(expirationDate).compact();
+		return Jwts.builder().setSubject(subject).signWith(refreshSecret).setExpiration(expirationDate)
+				.compact();
 	}
 
 	public static Authentication getAuthentication(String token) {
@@ -64,7 +68,7 @@ public class RefreshProvider {
 
 	public static boolean validateToken(String authToken) {
 		try {
-			Jwts.parserBuilder().setSigningKey(refreshSecret).build().parse(authToken);
+			Jwts.parserBuilder().setSigningKey(refreshSecret).build().parseClaimsJws(authToken);
 			return true;
 		} catch (MalformedJwtException e) {
 			logger.error("Invalid JWT token: {}", e.getMessage());

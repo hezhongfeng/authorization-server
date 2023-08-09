@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,15 +28,29 @@ import javax.crypto.spec.SecretKeySpec;
 public class JWTProvider {
 	private static final Logger logger = LoggerFactory.getLogger(JWTProvider.class);
 
-	private static Key jwtSecret;
+	private static String jwtSecret;
+
+	private static int jwtExpirationInMs;
 
 	@Value("${jwt.secret}")
 	public void setJwtSecret(String secret) {
-		byte[] decodedKey = Base64.getDecoder().decode(secret);
-		jwtSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+		jwtSecret = secret;
 	}
 
-	private static int jwtExpirationInMs;
+	// @Value("${jwt.secret}")
+	// public JWTProvider( String secret) {
+	// // byte[] decodedKey = Base64.getDecoder().decode(secret);
+	// // jwtSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+	// // this.jwtSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+	// // jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+	// }
+
+	// public JWTProvider(@Value("${jwt.secret}") String secret) {
+	// this.jwtSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+	// }
+
+
 
 	@Value("${jwt.expire}")
 	public void setJwtExpirationInMs(int expire) {
@@ -42,17 +58,13 @@ public class JWTProvider {
 	}
 
 	// 根据subject生成token
-	public static String generateToken(String subject, List<String> permissions) {
+	public static String generateJWT(String subject, List<String> permissions) {
 
 		long currentTimeMillis = System.currentTimeMillis();
 		Date expirationDate = new Date(currentTimeMillis + jwtExpirationInMs * 1000);
 
-		// return Jwts.builder().setSubject(subject).signWith(jwtSecret, SignatureAlgorithm.HS256)
-		// .setExpiration(expirationDate).compact();
-
 		return Jwts.builder().setSubject(subject).claim("permissions", String.join(",", permissions))
-				.signWith(jwtSecret, SignatureAlgorithm.HS256).setIssuedAt(new Date())
-				.setExpiration(expirationDate).compact();
+				.signWith(SignatureAlgorithm.HS256, jwtSecret).setIssuedAt(new Date()).setExpiration(expirationDate).compact();
 	}
 
 	public static Authentication getAuthentication(String token) {
@@ -76,7 +88,7 @@ public class JWTProvider {
 
 	public static boolean validateToken(String authToken) {
 		try {
-			Jwts.parserBuilder().setSigningKey(jwtSecret).build().parse(authToken);
+			Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(authToken);
 			return true;
 		} catch (MalformedJwtException e) {
 			logger.error("Invalid JWT token: {}", e.getMessage());

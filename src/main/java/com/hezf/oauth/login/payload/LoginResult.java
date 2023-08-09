@@ -4,12 +4,15 @@ public class LoginResult {
 
   private String token;
 
+  private String refreshToken;
+
   private Long userId;
 
   public LoginResult() {}
 
-  public LoginResult(String token, Long userId) {
+  public LoginResult(String token, String refreshToken, Long userId) {
     this.token = token;
+    this.refreshToken = refreshToken;
     this.userId = userId;
   }
 
@@ -19,6 +22,14 @@ public class LoginResult {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  public String getRefreshToken() {
+    return this.refreshToken;
+  }
+
+  public void setRefreshToken(String refreshToken) {
+    this.refreshToken = refreshToken;
   }
 
   public Long getUserId() {
@@ -31,10 +42,8 @@ public class LoginResult {
 
   @Override
   public String toString() {
-    return "{" +
-      " token='" + getToken() + "'" +
-      ", userId='" + getUserId() + "'" +
-      "}";
+    return "{" + " token='" + getToken() + "'" + ", refreshToken='" + getRefreshToken() + "'"
+        + ", userId='" + getUserId() + "'" + "}";
   }
 }
 
