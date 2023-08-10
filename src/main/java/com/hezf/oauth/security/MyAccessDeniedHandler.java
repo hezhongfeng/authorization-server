@@ -1,7 +1,7 @@
 package com.hezf.oauth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hezf.oauth.user.config.RespResult;
+import com.hezf.oauth.admin.user.config.RespResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

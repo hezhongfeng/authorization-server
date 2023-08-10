@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.test.annotation.Rollback;
-import com.hezf.oauth.user.service.UserService;
+import com.hezf.oauth.admin.user.service.UserService;
 
 @SpringBootTest
 class OauthApplicationTests {
