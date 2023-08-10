@@ -13,11 +13,11 @@ public class FilterConfig {
   @Bean
   public FilterRegistrationBean<JWTFilter> filterRegistrationBean() {
     // 注册过滤器(初始化过滤器)
-    FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<>();
+    FilterRegistrationBean<JWTFilter> registrationBean = new FilterRegistrationBean<JWTFilter>();
 
     registrationBean.setFilter(jwtFilter);
-    // 添加过滤的路径，凡是路径带/user就进入过滤器
-    registrationBean.addUrlPatterns("/api/**");
+    // 添加过滤的路径，凡是路径带 /api 的就进入过滤器，注意只能一个*号
+    registrationBean.addUrlPatterns("/api/*");
 
     return registrationBean;
   }

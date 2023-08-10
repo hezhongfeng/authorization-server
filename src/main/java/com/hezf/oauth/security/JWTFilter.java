@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hezf.oauth.user.config.RespResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +23,8 @@ import java.util.Set;
 public class JWTFilter extends OncePerRequestFilter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JWTFilter.class);
+
+  private static ObjectMapper objectMapper = new ObjectMapper();
 
   private Set<String> skipUrls =
       new HashSet<>(Arrays.asList("/api/v1/login", "/api/v1/refresh-token"));
@@ -44,6 +48,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 将认证信息存入 Security 上下文中，可以取出来使用
         SecurityContextHolder.getContext().setAuthentication(authentication);
+      } else {
+        // 没有合法的 jwt ，所以给出未登录的反馈
+        response.setContentType("application/json;charset=utf-8");
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        response.setContentType("application/json;charset=utf-8");
+        RespResult<String> resp = new RespResult<String>(201, "未登录，请先登录", null);
+        objectMapper.writeValue(response.getWriter(), resp);
+        return;
       }
     } catch (Exception ex) {
       LOGGER.error("Could not set user authentication in security context", ex);
