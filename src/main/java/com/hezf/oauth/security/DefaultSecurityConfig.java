@@ -2,9 +2,13 @@ package com.hezf.oauth.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,10 +19,33 @@ import com.hezf.oauth.authentication.federation.FederatedIdentityAuthenticationS
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class DefaultSecurityConfig {
 
   // @formatter:off
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE+1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+
+      http
+      .securityMatcher("/api/**")
+      .authorizeHttpRequests(authorize -> {
+          authorize.anyRequest().authenticated();
+      });
+
+      http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+      http.csrf(csrf -> csrf.disable());
+      http.httpBasic(httpBasic-> httpBasic.disable());      
+      http.formLogin(formLogin-> formLogin.disable());
+  
+      return http.build();
+    }
+    // @formatter:on
+
+  // @formatter:off
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE+2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
   
       String[] antMatchersAnonymous = {"/api/**", "/public/**", "/assets/**", "/webjars/**", "/login"};
