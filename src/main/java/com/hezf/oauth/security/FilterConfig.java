@@ -1,4 +1,4 @@
-package com.hezf.oauth.user.config;
+package com.hezf.oauth.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -18,8 +18,6 @@ public class FilterConfig {
     registrationBean.setFilter(jwtFilter);
     // 添加过滤的路径，凡是路径带/user就进入过滤器
     registrationBean.addUrlPatterns("/api/**");
-    // registrationBean.exc
-
 
     return registrationBean;
   }

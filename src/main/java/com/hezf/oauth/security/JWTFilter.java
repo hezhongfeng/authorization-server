@@ -1,4 +1,4 @@
-package com.hezf.oauth.user.config;
+package com.hezf.oauth.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

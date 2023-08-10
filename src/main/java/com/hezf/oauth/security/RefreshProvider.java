@@ -1,4 +1,4 @@
-package com.hezf.oauth.user.config;
+package com.hezf.oauth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
