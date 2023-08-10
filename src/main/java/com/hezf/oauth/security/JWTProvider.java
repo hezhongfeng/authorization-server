@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class JWTProvider {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(JWTProvider.class);
 
 	private static String jwtSecret;
@@ -60,7 +60,8 @@ public class JWTProvider {
 		Date expirationDate = new Date(currentTimeMillis + jwtExpirationInMs * 1000);
 
 		return Jwts.builder().setSubject(subject).claim("permissions", String.join(",", permissions))
-				.signWith(SignatureAlgorithm.HS256, jwtSecret).setIssuedAt(new Date()).setExpiration(expirationDate).compact();
+				.signWith(SignatureAlgorithm.HS256, jwtSecret).setIssuedAt(new Date())
+				.setExpiration(expirationDate).compact();
 	}
 
 	public static Authentication getAuthentication(String token) {
@@ -76,10 +77,10 @@ public class JWTProvider {
 						: Arrays.stream(permissionString.split(",")).map(SimpleGrantedAuthority::new)
 								.collect(Collectors.toList());
 
-		// 获取用户Id
-		Long userId = Long.valueOf(claims.getSubject());
+		// 获取 username
+		String username = claims.getSubject();
 
-		return new UsernamePasswordAuthenticationToken(userId, null, authorities);
+		return new UsernamePasswordAuthenticationToken(username, null, authorities);
 	}
 
 	public static boolean validateToken(String authToken) {

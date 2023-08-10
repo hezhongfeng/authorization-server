@@ -49,20 +49,13 @@ public class JWTFilter extends OncePerRequestFilter {
         // 将认证信息存入 Security 上下文中，可以取出来使用
         SecurityContextHolder.getContext().setAuthentication(authentication);
       } else {
-        // 没有合法的 jwt ，所以给出未登录的反馈
-        response.setContentType("application/json;charset=utf-8");
-
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-        response.setContentType("application/json;charset=utf-8");
-        RespResult<String> resp = new RespResult<String>(201, "未登录，请先登录", null);
-        objectMapper.writeValue(response.getWriter(), resp);
-        return;
+        handleAuthenticationEntryPoint(response);
       }
     } catch (Exception ex) {
       LOGGER.error("Could not set user authentication in security context", ex);
+      handleAuthenticationEntryPoint(response);
     }
-
+    // 继续后续的 filter
     filterChain.doFilter(request, response);
   }
 
@@ -79,5 +72,18 @@ public class JWTFilter extends OncePerRequestFilter {
       return bearerToken.substring(7, bearerToken.length());
     }
     return null;
+  }
+
+  private void handleAuthenticationEntryPoint(HttpServletResponse response)
+      throws ServletException, IOException {
+    // 没有合法的 jwt ，所以给出未登录的反馈
+    response.setContentType("application/json;charset=utf-8");
+
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+    response.setContentType("application/json;charset=utf-8");
+    RespResult<String> resp = new RespResult<String>(201, "未登录，请先登录", null);
+    objectMapper.writeValue(response.getWriter(), resp);
+    return;
   }
 }

@@ -22,9 +22,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @RestController
 @RequestMapping("/api/v1")
 public class LoginControllerV1 {
@@ -34,21 +31,6 @@ public class LoginControllerV1 {
 
   @Autowired
   private UserService userService;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(LoginControllerV1.class);
-
-  // private SecurityContextRepository securityContextRepository =
-  // new HttpSessionSecurityContextRepository();
-
-  // private final AuthenticationSuccessHandler successHandler =
-  // new SavedRequestAwareAuthenticationSuccessHandler();
-
-
-  @GetMapping("/login")
-  public RespResult<Object> login() throws IOException, ServletException {
-    // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
-    return new RespResult<Object>(200, "login成功", null);
-  }
 
   /**
    * 登录
@@ -73,29 +55,6 @@ public class LoginControllerV1 {
     // 获取完整用户信息
     CurrentResult currentUser = userService.getCurrentUser(login.getUsername());
 
-    // // 权限列表
-    // List<SimpleGrantedAuthority> permissions = currentUser.getPermissions().stream()
-    // .map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
-
-    // // 设置空的上下文
-    // SecurityContext context = SecurityContextHolder.createEmptyContext();
-
-    // // 存储当前用户信息，这里最好存储 username,和authentication的 定义一致,不要存 userId
-    // Authentication authentication =
-    // new UsernamePasswordAuthenticationToken(username, null, permissions);
-
-    // context.setAuthentication(authentication);
-
-    // SecurityContextHolder.setContext(context);
-    // securityContextRepository.saveContext(context, request, response);
-
-    // 对于手动登录，需要运行 successHandler（SavedRequestAwareAuthenticationSuccessHandler），以便继续授权流程
-    // successHandler.onAuthenticationSuccess(request, response, authentication);
-
-
-    // // 获取完整用户信息
-    // CurrentResult currentUser = userService.getCurrentUser(login.getUsername());
-
     // 使用 username 做 subject 和权限生成 JWT
     String token = JWTProvider.generateJWT(currentUser.getUsername(), currentUser.getPermissions());
 
@@ -104,9 +63,6 @@ public class LoginControllerV1 {
 
     return new RespResult<LoginResult>(200, "登录成功",
         new LoginResult(token, refreshToken, currentUser.getUserId()));
-
-    // 这里还有一个问题，登录成功后如何继续进行授权或者返回成功？
-    // return new RespResult<LoginResult>(200, "登录成功", null);
   }
 
   @GetMapping("/current")
