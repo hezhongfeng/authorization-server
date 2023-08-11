@@ -33,21 +33,6 @@ public class JWTProvider {
 		jwtSecret = secret;
 	}
 
-	// @Value("${jwt.secret}")
-	// public JWTProvider( String secret) {
-	// // byte[] decodedKey = Base64.getDecoder().decode(secret);
-	// // jwtSecret = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-	// // this.jwtSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-	// // jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-	// }
-
-	// public JWTProvider(@Value("${jwt.secret}") String secret) {
-	// this.jwtSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-	// }
-
-
-
 	@Value("${jwt.expire}")
 	public void setJwtExpirationInMs(int expire) {
 		jwtExpirationInMs = expire;
