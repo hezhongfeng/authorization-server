@@ -6,4 +6,6 @@ import com.hezf.oauth.authentication.entity.Client;
 
 public interface ClientRepository extends JpaRepository<Client, String> {
   Optional<Client> findByClientId(String clientId);
+
+  Boolean existsByClientId(String name); 
 }

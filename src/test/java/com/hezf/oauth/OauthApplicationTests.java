@@ -57,7 +57,7 @@ class OauthApplicationTests {
 				// {bcrypt}$2a$10$kYEqs8S4mwUSP7ures8ZSuqeng0HI28moJ7htsXcxr3U3QtL31FAC
 				// 去除了{bcrypt}之后可以正常验证 new
 				// BCryptPasswordEncoder().matches("secret","$2a$10$kYEqs8S4mwUSP7ures8ZSuqeng0HI28moJ7htsXcxr3U3QtL31FAC")
-				.clientSecret("secret").clientIdIssuedAt(Instant.now())
+				.clientSecret("{noop}secret").clientIdIssuedAt(Instant.now())
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
