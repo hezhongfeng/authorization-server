@@ -52,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
   public Client updateClient(UpdateClientDto clientDto, String id) {
     Client client = clientRepo.findById(id).get();
     client.setClientName(clientDto.getClientName());
-    client.setScopes(clientDto.getScopes());
+    // client.setScopes(clientDto.getScopes());
     client.setRedirectUris(clientDto.getRedirectUris());
     client.setPostLogoutRedirectUris(clientDto.getPostLogoutRedirectUris());
     clientRepo.save(client);
