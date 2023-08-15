@@ -40,8 +40,9 @@ public class ClientServiceImpl implements ClientService {
         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
         .redirectUri(createClientDto.getRedirectUris())
-        .postLogoutRedirectUri(createClientDto.getPostLogoutRedirectUris()).scope(OidcScopes.OPENID)
-        .scope(OidcScopes.PROFILE)
+        .postLogoutRedirectUri(createClientDto.getPostLogoutRedirectUris())
+        // openid is necessary
+        .scope(OidcScopes.OPENID)
         .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build()).build();
 
     registeredClientRepository.save(registeredClient);
