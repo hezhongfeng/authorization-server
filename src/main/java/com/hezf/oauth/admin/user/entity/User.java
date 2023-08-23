@@ -25,6 +25,9 @@ public class User {
     @Column
     private String nickname;
 
+    @Column
+    private boolean enabled = true; // 是否被禁用
+
     // 注意 ，不能用desc，因为desc是关键字
     @Column(columnDefinition = "text")
     private String description;
@@ -44,11 +47,15 @@ public class User {
 
     public User() {}
 
-    public User(String username, String password, String nickname, String description) {
+    public User(Long id, String username, String password, String nickname, boolean enabled,
+            String description, Set<Role> roles) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
+        this.enabled = enabled;
         this.description = description;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -83,12 +90,32 @@ public class User {
         this.nickname = nickname;
     }
 
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public boolean getEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public String getDescription() {
         return this.description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public Date getCreatedTime() {
@@ -107,22 +134,12 @@ public class User {
         this.updatedTime = updatedTime;
     }
 
-    public Set<Role> getRoles() {
-        return this.roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
     @Override
     public String toString() {
         return "{" + " id='" + getId() + "'" + ", username='" + getUsername() + "'" + ", password='"
-                + getPassword() + "'" + ", nickname='" + getNickname() + "'" + ", description='"
-                + getDescription() + "'" + ", roles='" + getRoles() + "'" + ", createdTime='"
-                + getCreatedTime() + "'" + ", updatedTime='" + getUpdatedTime() + "'" + "}";
+                + getPassword() + "'" + ", nickname='" + getNickname() + "'" + ", enabled='"
+                + isEnabled() + "'" + ", description='" + getDescription() + "'" + ", roles='"
+                + getRoles() + "'" + ", createdTime='" + getCreatedTime() + "'" + ", updatedTime='"
+                + getUpdatedTime() + "'" + "}";
     }
-
 }
-
-

@@ -3,7 +3,7 @@ package com.hezf.oauth.admin.login.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,7 +47,7 @@ public class LoginControllerV1 {
 
     User user = userRepo.findByUsername(username);
 
-    if (user == null || !(new BCryptPasswordEncoder().matches(password, user.getPassword()))) {
+    if (user == null || !(PasswordEncoderFactories.createDelegatingPasswordEncoder().matches(password, user.getPassword()))) {
       // 认证失败，返回错误信息
       return new RespResult<LoginResult>(201, "账号或密码错误", null);
     }

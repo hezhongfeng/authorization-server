@@ -1,11 +1,13 @@
 package com.hezf.oauth;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -25,26 +27,21 @@ class OauthApplicationTests {
 	private RegisteredClientRepository registeredClientRepository;
 
 	@Test
-	void contextLoads() {
-		if (new BCryptPasswordEncoder().matches("secret",
-				"$2a$10$kYEqs8S4mwUSP7ures8ZSuqeng0HI28moJ7htsXcxr3U3QtL31FAC")) {
-
-			System.out.println("验证过");
-
-		} else {
-			System.out.println("失败了");
-		}
-
-
-		// $2a$10$9pZ9l2xSWcpmNCas2Gsf6eOsswpQ/rVSCGyxdVKptLKq4YsH7UCfi
-
-	}
-
-	@Test
 	@Rollback(false)
 	void initUsers() {
 		// 初始化用户
 		userService.initAllUsers();
+	}
+
+	@Test
+	void testPassword() {
+		PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		// {bcrypt}$2a$10$yaz4908RqegBYW6UF1WUueeivPWyB548RFBU6EE.AuDzpwQinqDla
+		System.out.println(passwordEncoder.matches("password",
+				"{bcrypt}$2a$10$yaz4908RqegBYW6UF1WUueeivPWyB548RFBU6EE.AuDzpwQinqDla"));
+		System.out.println(passwordEncoder.matches("password",
+				"$2a$10$yaz4908RqegBYW6UF1WUueeivPWyB548RFBU6EE.AuDzpwQinqDla"));
+		// assertTrue(encoder.matches("pwssword", result));
 	}
 
 
@@ -56,8 +53,8 @@ class OauthApplicationTests {
 				// 注意存完的时候是{noop}secret，但是验证过之后就变为了{bcrypt}$2a$10$5igAFJvkf0wg.f5ml2bBgOO.13LmzgOhWwiwZZtTKCjkX0f3wiwJ2
 				// {bcrypt}$2a$10$kYEqs8S4mwUSP7ures8ZSuqeng0HI28moJ7htsXcxr3U3QtL31FAC
 				// 去除了{bcrypt}之后可以正常验证 new
-				// BCryptPasswordEncoder().matches("secret","$2a$10$kYEqs8S4mwUSP7ures8ZSuqeng0HI28moJ7htsXcxr3U3QtL31FAC")
-				.clientSecret("{noop}secret").clientIdIssuedAt(Instant.now())
+				.clientSecret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("password"))
+				.clientIdIssuedAt(Instant.now())
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)

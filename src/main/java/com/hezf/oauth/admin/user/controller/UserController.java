@@ -3,7 +3,7 @@ package com.hezf.oauth.admin.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -60,9 +60,7 @@ class UserController {
 
     User user = userRepo.findById(id).get();
 
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
-    if (!bCryptPasswordEncoder.matches(updatePassword.getPassword(), user.getPassword())) {
+    if (!PasswordEncoderFactories.createDelegatingPasswordEncoder().matches(updatePassword.getPassword(), user.getPassword())) {
       return new RespResult<String>(201, "原密码错误", null);
     }
 

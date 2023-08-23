@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -88,15 +89,22 @@ public class DefaultSecurityConfig {
     return new FederatedIdentityAuthenticationSuccessHandler();
   }
 
+  // 不需要配置，DelegatingPasswordEncoder 会根据 {id}encodedPassword 使用对应的密码编码器
+  // // 配置密码解析器，使用BCrypt的方式对密码进行加密和验证
+  // public PasswordEncoder passwordEncoder() {
+  //   return new BCryptPasswordEncoder();
+  // }
+
   // @formatter:off
-	@Bean
-	public UserDetailsService users() {
-		UserDetails user = User.withDefaultPasswordEncoder()
-				.username("user1")
-				.password("password")
-				.roles("USER")
-				.build();
-		return new InMemoryUserDetailsManager(user);
-	}
+	// @Bean
+	// public UserDetailsService users() {
+	// 	UserDetails user = User.withDefaultPasswordEncoder()
+	// 			.username("admin")
+	// 			.password("password")
+	// 			.roles("admin")
+  //       .authorities("manage","web")
+	// 			.build();
+	// 	return new InMemoryUserDetailsManager(user);
+	// }
 	// @formatter:on
 }

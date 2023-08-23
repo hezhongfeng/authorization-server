@@ -3,7 +3,8 @@ package com.hezf.oauth.admin.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.hezf.oauth.admin.user.entity.Permission;
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
   public User addUser(CreateUserDto userDto) {
 
     // 处理密码
-    String password = new BCryptPasswordEncoder().encode(userDto.getPassword());
+    String password = PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(userDto.getPassword());
 
     User user = new User();
     user.setUsername(userDto.getUsername());
@@ -123,7 +124,7 @@ public class UserServiceImpl implements UserService {
   public void updateUserPassword(Long id, String password) {
     User currentUser = userRepo.findById(id).get();
     // 处理密码
-    String encodePassword = new BCryptPasswordEncoder().encode(password);
+    String encodePassword = PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(password);
     currentUser.setPassword(encodePassword);
     userRepo.save(currentUser);
   }
@@ -212,6 +213,8 @@ public class UserServiceImpl implements UserService {
       roleRepo.save(role);
     }
 
+    PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
     // 新增管理员用户
     if (!userRepo.existsByUsername("admin")) {
       Role role = roleRepo.findByName("管理员角色");
@@ -220,7 +223,7 @@ public class UserServiceImpl implements UserService {
 
       User user = new User();
       user.setUsername("admin");
-      user.setPassword(new BCryptPasswordEncoder().encode("password"));
+      user.setPassword(passwordEncoder.encode("password"));
       user.setRoles(roles);
       user.setNickname("管理员");
       user.setDescription("管理员帐户，可以管理其他用户u、角色和权限");
@@ -235,7 +238,7 @@ public class UserServiceImpl implements UserService {
 
       User user = new User();
       user.setUsername("normal");
-      user.setPassword(new BCryptPasswordEncoder().encode("password"));
+      user.setPassword(passwordEncoder.encode("password"));
       user.setRoles(roles);
       user.setNickname("普通用户");
       user.setDescription("我是一个普通用户，我拥有自定义权限");
