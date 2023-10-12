@@ -1,0 +1,50 @@
+server:
+  port: 9000
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        web: trace
+        security: trace
+        oauth2: trace
+
+spring:
+  config:
+    # 引入环境变量
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 123
+            client-secret: 123
+
+jwt:
+  # 60*60*1
+  expire: 3600
+  # secret: 秘钥(普通字符串)
+  secret: aHR0cHM6Ly9teS5vc2NoaW5hLm5ldC91LzM2ODE4Njg=
+  # 默认存放token的请求头
+  requestHeader: Authorization
+  # 默认token前缀
+  tokenPrefix: Bearer
+
+refresh:
+  # 60*60*24
+  expire: 68400
+  # secret: 秘钥(普通字符串)
+  secret: y2KT3refreshcHM6Ly9tes6S5vc2Noaku9W5hLm5ldC91LzM67R
+
