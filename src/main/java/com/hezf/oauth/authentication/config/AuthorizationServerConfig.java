@@ -93,9 +93,36 @@ public class AuthorizationServerConfig {
 		return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
 	}
 
+	/**
+	 * 以下是默认的设置
+	 * 
+	 * return new Builder() .authorizationEndpoint("/oauth2/authorize")
+	 * .deviceAuthorizationEndpoint("/oauth2/device_authorization")
+	 * .deviceVerificationEndpoint("/oauth2/device_verification") .tokenEndpoint("/oauth2/token")
+	 * .tokenIntrospectionEndpoint("/oauth2/introspect") .tokenRevocationEndpoint("/oauth2/revoke")
+	 * .jwkSetEndpoint("/oauth2/jwks") .oidcLogoutEndpoint("/connect/logout")
+	 * .oidcUserInfoEndpoint("/userinfo") .oidcClientRegistrationEndpoint("/connect/register");
+	 * 
+	 * 
+	 * 这里可以对各种授权接口进行设置
+	 * 
+	 * @Bean public AuthorizationServerSettings authorizationServerSettings() { return
+	 *       AuthorizationServerSettings.builder() .issuer("https://example.com")
+	 *       .authorizationEndpoint("/oauth2/v1/authorize")
+	 *       .deviceAuthorizationEndpoint("/oauth2/v1/device_authorization")
+	 *       .deviceVerificationEndpoint("/oauth2/v1/device_verification")
+	 *       .tokenEndpoint("/oauth2/v1/token") .tokenIntrospectionEndpoint("/oauth2/v1/introspect")
+	 *       .tokenRevocationEndpoint("/oauth2/v1/revoke") .jwkSetEndpoint("/oauth2/v1/jwks")
+	 *       .oidcLogoutEndpoint("/connect/v1/logout") .oidcUserInfoEndpoint("/connect/v1/userinfo")
+	 *       .oidcClientRegistrationEndpoint("/connect/v1/register") .build(); }
+	 * 
+	 * 
+	 * @return
+	 */
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().build();
+		return AuthorizationServerSettings.builder().oidcUserInfoEndpoint(CUSTOM_CONSENT_PAGE_URI)
+				.build();
 	}
 
 }

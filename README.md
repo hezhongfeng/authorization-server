@@ -2,22 +2,149 @@
 
 authorization-server
 
-1. 实现 OAuth2.1 草案的授权方式（oidc、PKCE 认证、认证码包括 Refresh Token ）
+1. 实现 OAuth2.1 草案的授权方式（认证码包括 Refresh Token、oidc、PKCE 认证 ）
 2. client 管理，主要是密码和 redirecturl、logouturl 的管理
 3. 用户系统管理，有角色和权限的区分，有管理用户和普通用户
 4. 可以统一退出（client 退出后，authorization-server 端也退出，这个可选）
 5. 有 client 的 demo（springboot、nestjs，也有前端，可以进行修改用户信息等操作）
 6. 支持对 consent 的过期管理（比如说，同意一次一个月内有效这种）
 
+## 认证过程
+
+### client 启动
+
+client 会向 server 发送请求 openid 配置的请求，两个一样的请求： `HTTP GET http://localhost:9000/.well-known/openid-configuration`
+
+然后 server 回复：
+
+```json
+{
+  "issuer": "http://localhost:9000",
+  "authorization_endpoint": "http://localhost:9000/oauth2/authorize",
+  "device_authorization_endpoint": "http://localhost:9000/oauth2/device_authorization",
+  "token_endpoint": "http://localhost:9000/oauth2/token",
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "jwks_uri": "http://localhost:9000/oauth2/jwks",
+  "userinfo_endpoint": "http://localhost:9000/userinfo",
+  "end_session_endpoint": "http://localhost:9000/connect/logout",
+  "response_types_supported": ["code"],
+  "grant_types_supported": [
+    "authorization_code",
+    "client_credentials",
+    "refresh_token",
+    "urn:ietf:params:oauth:grant-type:device_code"
+  ],
+  "revocation_endpoint": "http://localhost:9000/oauth2/revoke",
+  "revocation_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "introspection_endpoint": "http://localhost:9000/oauth2/introspect",
+  "introspection_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "code_challenge_methods_supported": ["S256"],
+  "subject_types_supported": ["public"],
+  "id_token_signing_alg_values_supported": ["RS256"],
+  "scopes_supported": ["openid"]
+}
+```
+
+访问 client 的根目录 `http://localhost:8080/` 后先 302 到`http://localhost:8080/oauth2/authorization/messaging-client-oidc`
+
+继续 302 到 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=W2rzdFZDm6smyMbFGtmHWLUYqGv_vHtoEnjFnKwPzQI%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=syQCDUpwdQyw65SOSk0aEDD7uUtws4yVpKaQ3i3EblM`
+
+302 到`http://localhost:9000/login` 返回登录页面
+
+输入用户名密码提交登录`POST /login`后
+
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=W2rzdFZDm6smyMbFGtmHWLUYqGv_vHtoEnjFnKwPzQI%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=syQCDUpwdQyw65SOSk0aEDD7uUtws4yVpKaQ3i3EblM&continue`
+
+302 `http://localhost:9000/oauth2/consent?scope=openid%20profile&client_id=messaging-client&state=xEj96Penx2THjBoAnL4HYjuSiP0niVFTmNsSVmYPjB8%3D` 返回前端页面，这个是授权页面
+
+选择 scope 之后 提交`POST /oauth2/authorize`
+
+302 `http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc?code=UK6l2_-p-1VjjgOr8lRahDmKpg8MvC4GrY0zFk4txmRVlS9zERuwYC2rHtWUtSEQACTsRIit9uWLYrJgvb-USs6OAp7jKoVhqnjAsUU4AmUemKChSiq9wiD9Vk-pLITY&state=djXuffVHeaqHQrn9M-f5XHP8e3BiVo7ARhn4jiYW0eM%3D`
+
+302 `http://127.0.0.1:8080/oauth2/authorization/messaging-client-oidc?error`
+
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=k4o4H4IBl6CHn_s0k1dN8a-jXVMBntQxEyZAiF0NF-A%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=ravL1Z7yyheAX-8okPBFsuCkvtvpRehsBR3fqyVcqQg`
+
+302 到 `http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc?code=8iJ6r5v-heZ8Y6Y8F4MdDLX2FO54mJbN-dehuN6kNPZ1fL11IgsOmChQYT5yDKpPzTmJEWJz-UjBKzXlk87jRkqxblfXzj-EoBXTHFGnk8vMfj2kAhtwxMr-VllYb_3p&state=k4o4H4IBl6CHn_s0k1dN8a-jXVMBntQxEyZAiF0NF-A%3D`
+
+这时候 client 会向 server `HTTP POST http://localhost:9000/oauth2/token`,body 是：
+
+```json
+{
+  "grant_type": "authorization_code",
+  "code": "8iJ6r5v-heZ8Y6Y8F4MdDLX2FO54mJbN-dehuN6kNPZ1fL11IgsOmChQYT5yDKpPzTmJEWJz-UjBKzXlk87jRkqxblfXzj-EoBXTHFGnk8vMfj2kAhtwxMr-VllYb_3p",
+  "redirect_uri": "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc"
+}
+```
+
+回复的是：
+
+```json
+{
+  "access_token": "eyJraWQiOiIwOWRmNzRmZi0wMzBhLTRkYzMtYmYxZi05ODAxMDlhYjRkMmQiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJuYmYiOjE2OTcxNzg4MjUsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNjk3MTc5MTI1LCJpYXQiOjE2OTcxNzg4MjV9.ePR8oiVciNg9lAGnkiY01vy3sdylzcO9jQqCph8tklmiQ6cCJenuNl0pB_HzqgMf4iWb-YxlMCdLFcLSrvR2ZH3A34aqr5PVtNP_JtxLDcWs0_QkjqJQp_VQN6V7Zaahtqd3CicKppFYt_ndUrWCTbVkjLMgqXTIPTodo96BH2tReOBaQGN024z-Dpf5gwdSp9E-4CjRcL21qu8QUhGLJt2y-tokN4aKX5pMdwIBbr2kxwkHwVRf4SZItPlfMJbvCSC7ciB886Gw0GOIYuTsQrAtrRUcsgTGiBkp7HvN-kPZse5EgTw-ZVi_xh0u9XBzNYff5a1jrc1vdHLzHeEfUw",
+  "refresh_token": "V1kMZsZohLGffvW4dq57IVWEJO44Rx_UPIzGjOszzYs-qGQFfoy9Sv9PtoHTP74vjV-O0gjcZqcZYbLOCzmQHp2Ma0a3WJBBmFRSZF31vwiJg61dWGwK-BMSNMKbYBOM",
+  "scope": "openid profile",
+  "id_token": "eyJraWQiOiIwOWRmNzRmZi0wMzBhLTRkYzMtYmYxZi05ODAxMDlhYjRkMmQiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJhenAiOiJtZXNzYWdpbmctY2xpZW50IiwiYXV0aF90aW1lIjoxNjk3MTc4ODI0LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjkwMDAiLCJleHAiOjE2OTcxODA2MjUsImlhdCI6MTY5NzE3ODgyNSwibm9uY2UiOiJyYXZMMVo3eXloZUFYLThva1BCRnN1Q2t2dHZwUmVoc0JSM2ZxeVZjcVFnIiwic2lkIjoiWUVIaHppUS1JVmhxYWNOYlAzdm1qVl84WThLNlpOeXJxa0RXZFl6NVotMCJ9.Q0d6HQZhGFpff9bok2XocqrighQn-y8WYk1wpmmVB1gAQ9GdHJNJnNvdQoxKNGxBtgL2oraBHTZXLxbRCY49DazmkGygyhdKhewfZjC9MIi7oo4-Zp1pLx8ARJpBoAcKgs9rvu_21oEofLC9t97AaokPMsXgcfUs_59LBFd9kI1tyJ3Y7EC9X5Y6ay6Y92--sQbwoRLEd_tVMxgGvT1iEXdqklFlL790UIxQsMtLPviJbIgbnsC89_I4qnY8j5vQEMNbv6zjroubJcpECO70wm1wYNIw2LmuOchpM-sS7cL1_MWegEKp3Iv6JpLSt27nX1JEu5uql7JY-piuJR8XDg",
+  "token_type": "Bearer",
+  "expires_in": 299
+}
+```
+
+client 还向 server 发起了`HTTP GET http://localhost:9000/oauth2/jwks`
+
+server 返回：
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "kid": "aa6bf576-ea2a-419d-ae24-32219f0e29c3",
+      "n": "1dP9tXwIyoON6E2MtoDvzqSUKEgwmlbKrKiVStUxk7cTsJXtLUu5rvF8tY45s-bJiLMOVc4iVUNG93E8Gc2WXGKD7DmwGDoNX81qYpNC2GWmCGv_FpjcszdRyQCaC8B-g6rSfkBIdgNl8X3fI-cgyViZUnz69Hx4FuA9zYaKkLqqG4XoOgmYJyheY3UCHNT2UZMDgoAqpAVMFP4Ihp3xK-iSMaqGdTymzOmocqUZUYuw6TgmE9gJYMQ8OVvkHtgKe3_Pub1kpRHt8BPnJ67yihYhjGig8U-MFz0d6qe61X5s-Ttf4e5QqvD35_6oeu89hiPkNp-Kbs2queORpVX3VQ"
+    }
+  ]
+}
+```
+
+client 还向 server 发起了 `GET /userinfo` 这里应该是 header 有信息，还没确定
+
+server 返回：
+
+```json
+{ "sub": "user1" }
+```
+
+前端 302 `http://127.0.0.1:8080/` 302 `http://127.0.0.1:8080/index`
+
 ## 认证码
 
+```json
 http://127.0.0.1:8080/authorize?grant_type=authorization_code
+```
 
 最终读取了 message 列表
 
 ## oidc
 
+```json
 http://localhost:8080/oauth2/authorization/messaging-client-oidc
+```
 
 一般是读取了 userinfo
 
