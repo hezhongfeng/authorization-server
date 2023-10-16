@@ -145,6 +145,172 @@ server 返回：
 
 前端 302 `http://127.0.0.1:8080/` 302 `http://127.0.0.1:8080/index`
 
+## authorization_code
+
+浏览器输入 `http://127.0.0.1:8080/authorize?grant_type=authorization_code` 请求认证码协议
+
+302 `http://127.0.0.1:8080/oauth2/authorization/messaging-client-oidc`
+
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=LiWZmf22cs3Bk82G3fBxowA30_BbwFO-bh4gjT8cHE0%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=2vEIc0MUecrKDz5fmZvFN8Bb1Hlq9BRamg8AQ37ldJM`
+
+302 `http://localhost:9000/login`
+
+填写用户名、密码提交 `POST /login`
+
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=LiWZmf22cs3Bk82G3fBxowA30_BbwFO-bh4gjT8cHE0%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=2vEIc0MUecrKDz5fmZvFN8Bb1Hlq9BRamg8AQ37ldJM&continue`
+
+302 `http://localhost:9000/oauth2/consent?scope=openid%20profile&client_id=messaging-client&state=4bu0OZkBnEC1JC1SllfLuQUcrEqVa2Z4aoPskhHmygo%3D` 这是授权页面
+
+选择 profile 后提交 `POST /oauth2/authorize`
+
+302 `http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc?code=qKg-2hHmfPbV4UqTvDASOxa4E4BQJf0mQCuFem3Pi_Av93dmneasZPmn2bS8qoAevhUaFBZhnYSpRjxaV9lUrNeKr_H-zavGJLv7cl_9dcb6JPRo5dwUdDY4JMV5pt49&state=LiWZmf22cs3Bk82G3fBxowA30_BbwFO-bh4gjT8cHE0%3D`
+
+这时候 client 向 server 发起 `HTTP POST http://localhost:9000/oauth2/token` 参数 ：
+
+```form
+[{grant_type=[authorization_code], code=[qKg-2hHmfPbV4UqTvDASOxa4E4BQJf0mQCuFem3Pi_Av93dmneasZPmn2bS8qoAevhUaFBZhnYSpRjxaV9lUrNeKr_H-zavGJLv7cl_9dcb6JPRo5dwUdDY4JMV5pt49], redirect_uri=[http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc]}]
+```
+
+server 返回 ：
+
+```json
+{
+  "access_token": "eyJraWQiOiJkYWU0ZDM5ZC0xMmVmLTQyZjYtYjk2Mi1jOWMxMWJlM2U0OTUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJuYmYiOjE2OTc0MzgyMzcsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNjk3NDM4NTM3LCJpYXQiOjE2OTc0MzgyMzd9.HcZIHYrZsA6Imu_P0Xj-oyNHoCK5X0j_N4Q8IAgxJnznrPCFPMecHLYU_rPup9UEUYaYoXzGjZyTB6IvRv_BQ85feHalwJH_ClurtedOg1gc9_qX9JIqUoR8FZbhLY6blE0jLuTed-RF-1vq-Xghp8FYmwLSt9BXq3Bf_YptKI1tWPRg3BIqtYq8iEmg66F82aaChGO3c3nz9Bb8vBlDx2FU6xKWoZElxn63ihqmRJTQvRpIkZqu2hLTIuJtwbxSNyk1FEfESC2q0ZAqU0bG3g03ujxhu9sy8ob_ITjEWmaeLn9j9_6dB3TgzMx_i0nRse-Xx9lO7oPWjbXP3EvcAw",
+  "refresh_token": "zPKW_BTfk-C9RroqFSMXBQ2NOi0cBMzG1H9Qghh4O0H1j65bqhTirbAEAMR47A5g4uxUDnf3gouN6KCC537Fku4Xv_LwbDCyg700Fmq3j_WnmJXO6sb3VXTd-QoEaBv8",
+  "scope": "openid profile",
+  "id_token": "eyJraWQiOiJkYWU0ZDM5ZC0xMmVmLTQyZjYtYjk2Mi1jOWMxMWJlM2U0OTUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJhenAiOiJtZXNzYWdpbmctY2xpZW50IiwiYXV0aF90aW1lIjoxNjk3NDM4MjM3LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjkwMDAiLCJleHAiOjE2OTc0NDAwMzcsImlhdCI6MTY5NzQzODIzNywibm9uY2UiOiIydkVJYzBNVWVjcktEejVmbVp2Rk44QmIxSGxxOUJSYW1nOEFRMzdsZEpNIiwic2lkIjoibWV4ZU5mQ3lQUlRwS1YyM0RLU0NIakFlTGptTS1YYXdkS2FzYjBIRG4xRSJ9.PRdhc2iv6z9PwkfP0DRRhqtbSNYLlt57P_3vhgvhGqwI78NFNMOH8xLTf6QKFPZC_ZA7mEhRgkw7jR_Xmmhj0Fi5MsuL4KRyLhYNkFCV_5lrxfGkhUZEPClAb9Odu0Dglph8pg6sVsxtUAAuLIo-XCcCRelc1WxFP1ywylZJrj4d377nyCipFz2haIiemrXf-G-WL9lC4ghL-phl6W2MANC53yPEnIU4vKMu2Dd83x8F-emLDCxksvwgqt6NxJjhJavzdSf3WXNzh14EHhqsIWSXprmeb48StNKzzabvSpQg7mSlSImXrpWpSzpJi9or0oMCF1ZfpU3xq1Qn_EziXw",
+  "token_type": "Bearer",
+  "expires_in": 299
+}
+```
+
+client 发起 `HTTP GET http://localhost:9000/oauth2/jwks`
+
+server 返回：
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "kid": "dae4d39d-12ef-42f6-b962-c9c11be3e495",
+      "n": "uyCF4Rx4EAMCZchrJ81a4bvR1KYM4rFMRJV5tQuFtcwzF4xu554SGmAL5VWWDXv1jHhInk9IDY_wBkXX9cZMYcGeEhf7Pn9TUIAcyL7FpOpatl9K7I4Ycv-xO19VBtRwq0hhjeQcmyusFS0S48dnjE1kwbW0JeNAraovN2fgjw16mE2Uges_3gO8iXyVrpVQ2QXsAy8eX-KraTRkQbb3Ydw0-XfhK9FwVzhClgoMQDZu-_gjFKEUcAoWdAkOKUE2EYNRPEohN5eu48rm2AtVTf0bEcHo4qOOF25KyGyMOVHBZlZcgG4ytyeQelhtbr_yyclE6X7gT4IQ4Vv9eNoV8w"
+    }
+  ]
+}
+```
+
+client 发起 ：`HTTP GET http://localhost:9000/userinfo`
+
+server 返回：
+
+```json
+{ "sub": "user1" }
+```
+
+302 `http://127.0.0.1:8080/authorize?grant_type=authorization_code&continue`
+
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=message.read%20message.write&state=fpa90wP0eJvFBBU3-55-FnwLO246NFw8YOummQt87os%3D&redirect_uri=http://127.0.0.1:8080/authorized`
+
+302 `http://localhost:9000/oauth2/consent?scope=message.read%20message.write&client_id=messaging-client&state=3ZTByZic4Bwbt0tlLlR0C-8MwKK_vXyCOVlRfh1jrHs%3D`，前端显示 scope：
+
+选择后提交：`POST /oauth2/authorize`
+
+302 `http://127.0.0.1:8080/authorized?code=2GTeTfP5ELaisreRpdVzMRMLWyvL3ZbXhjcNZwSoP618kx69J3mXxQc0Ah-qNGrve1YYrXqJAt9octPly6XbaapSy2OGxID4_FD4WUVmUSiFj89JY8WSHOVAd-O5MEHa&state=fpa90wP0eJvFBBU3-55-FnwLO246NFw8YOummQt87os%3D`
+
+client 向 server 发起：`HTTP POST http://localhost:9000/oauth2/token` ，参数：
+
+```form
+[{grant_type=[authorization_code], code=[2GTeTfP5ELaisreRpdVzMRMLWyvL3ZbXhjcNZwSoP618kx69J3mXxQc0Ah-qNGrve1YYrXqJAt9octPly6XbaapSy2OGxID4_FD4WUVmUSiFj89JY8WSHOVAd-O5MEHa], redirect_uri=[http://127.0.0.1:8080/authorized]}]
+```
+
+server 回复：
+
+```json
+{
+  "access_token": "eyJraWQiOiJkYWU0ZDM5ZC0xMmVmLTQyZjYtYjk2Mi1jOWMxMWJlM2U0OTUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJuYmYiOjE2OTc0MzkwNjksInNjb3BlIjpbIm1lc3NhZ2UucmVhZCIsIm1lc3NhZ2Uud3JpdGUiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNjk3NDM5MzY5LCJpYXQiOjE2OTc0MzkwNjl9.l3Kt5ZXAsjdcDBb4gUYJYIWH31JRnjguwSFdXbBhJaLfdw-CNNHuspvbUyn9OQjNVVFDXxbUV1xdkajZoC22Yuj62i4V0P6hxeUgIYqXdVKA7xQ5zVBszRMnFz7pXHbppjg_44D0MvMdz7m_H8DufKIRw_TwIx5LrXgr7TOhZiaKxxUeZzGvzJUTdD-X2CFoK2VyoOPPm6G6b5pQiGguxyjAwxEAPvsGDxyxLXxbUbXwi9SierTPfcDlMK31Ykc67WEdgS2D5gmE4GvwtkG5Ou5Q4FV-iYOyWAapYetcaw-BB3-xfYtOejMWUmRDA3wU3_u30Iua1_jM8R01-ciPOg",
+  "refresh_token": "tL16Eofu5oixiCAcoOneOXtL5NUgPhC9_jJRgWQKnh808N86qdD0svgZ8fO1IdvMQXTP69V014qwFtch6txk0FRqVhZVfFOO9lvW3PfeUB_Iber4fRLLTz0oqo28Srze",
+  "scope": "message.read message.write",
+  "token_type": "Bearer",
+  "expires_in": 299
+}
+```
+
+302 `http://127.0.0.1:8080/authorize?grant_type=authorization_code&continue&continue`
+
+client 向 resource 发起`HTTP GET http://127.0.0.1:8090/messages`
+
+resource 向 server 发起：`HTTP GET http://localhost:9000/.well-known/openid-configuration`
+
+server 返回：
+
+```json
+{
+  "issuer": "http://localhost:9000",
+  "authorization_endpoint": "http://localhost:9000/oauth2/authorize",
+  "device_authorization_endpoint": "http://localhost:9000/oauth2/device_authorization",
+  "token_endpoint": "http://localhost:9000/oauth2/token",
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "jwks_uri": "http://localhost:9000/oauth2/jwks",
+  "userinfo_endpoint": "http://localhost:9000/userinfo",
+  "end_session_endpoint": "http://localhost:9000/connect/logout",
+  "response_types_supported": ["code"],
+  "grant_types_supported": [
+    "authorization_code",
+    "client_credentials",
+    "refresh_token",
+    "urn:ietf:params:oauth:grant-type:device_code"
+  ],
+  "revocation_endpoint": "http://localhost:9000/oauth2/revoke",
+  "revocation_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "introspection_endpoint": "http://localhost:9000/oauth2/introspect",
+  "introspection_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "client_secret_jwt",
+    "private_key_jwt"
+  ],
+  "code_challenge_methods_supported": ["S256"],
+  "subject_types_supported": ["public"],
+  "id_token_signing_alg_values_supported": ["RS256"],
+  "scopes_supported": ["openid"]
+}
+```
+
+resource 向 server 发起了`HTTP GET http://localhost:9000/oauth2/jwks`
+
+server 返回：
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "kid": "dae4d39d-12ef-42f6-b962-c9c11be3e495",
+      "n": "uyCF4Rx4EAMCZchrJ81a4bvR1KYM4rFMRJV5tQuFtcwzF4xu554SGmAL5VWWDXv1jHhInk9IDY_wBkXX9cZMYcGeEhf7Pn9TUIAcyL7FpOpatl9K7I4Ycv-xO19VBtRwq0hhjeQcmyusFS0S48dnjE1kwbW0JeNAraovN2fgjw16mE2Uges_3gO8iXyVrpVQ2QXsAy8eX-KraTRkQbb3Ydw0-XfhK9FwVzhClgoMQDZu-_gjFKEUcAoWdAkOKUE2EYNRPEohN5eu48rm2AtVTf0bEcHo4qOOF25KyGyMOVHBZlZcgG4ytyeQelhtbr_yyclE6X7gT4IQ4Vv9eNoV8w"
+    }
+  ]
+}
+```
+
+resource 返回 client：
+
+```form
+[{Message 1, Message 2, Message 3}]
+```
+
 ## 认证码
 
 ```json
