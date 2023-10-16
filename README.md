@@ -60,19 +60,32 @@ client 会向 server 发送请求 openid 配置的请求，两个一样的请求
 }
 ```
 
-访问 client 的根目录 `http://localhost:8080/` 后先 302 到`http://localhost:8080/oauth2/authorization/messaging-client-oidc`
+## oidc 认证
 
-继续 302 到 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=W2rzdFZDm6smyMbFGtmHWLUYqGv_vHtoEnjFnKwPzQI%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=syQCDUpwdQyw65SOSk0aEDD7uUtws4yVpKaQ3i3EblM`
+访问 client 的根目录 `http://localhost:8080/`
 
-302 到`http://localhost:9000/login` 返回登录页面
+302 `http://localhost:8080/oauth2/authorization/messaging-client-oidc`
 
-输入用户名密码提交登录`POST /login`后
+302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=W2rzdFZDm6smyMbFGtmHWLUYqGv_vHtoEnjFnKwPzQI%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=syQCDUpwdQyw65SOSk0aEDD7uUtws4yVpKaQ3i3EblM`
+
+302 `http://localhost:9000/login` 返回登录页面，前端展示页面
+
+输入用户名、密码提交登录`POST /login`
+
+继续之前的请求
 
 302 `http://localhost:9000/oauth2/authorize?response_type=code&client_id=messaging-client&scope=openid%20profile&state=W2rzdFZDm6smyMbFGtmHWLUYqGv_vHtoEnjFnKwPzQI%3D&redirect_uri=http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc&nonce=syQCDUpwdQyw65SOSk0aEDD7uUtws4yVpKaQ3i3EblM&continue`
 
-302 `http://localhost:9000/oauth2/consent?scope=openid%20profile&client_id=messaging-client&state=xEj96Penx2THjBoAnL4HYjuSiP0niVFTmNsSVmYPjB8%3D` 返回前端页面，这个是授权页面
+因为未授权，302 `http://localhost:9000/oauth2/consent?scope=openid%20profile&client_id=messaging-client&state=xEj96Penx2THjBoAnL4HYjuSiP0niVFTmNsSVmYPjB8%3D` 返回前端页面，这个是授权页面
 
-选择 scope 之后 提交`POST /oauth2/authorize`
+选择 scope 之后 提交`POST /oauth2/authorize`，以下为数据：
+
+```form data
+_csrf: IDT1ahoTSlfwfu8iERXOf_ZMO0CLHFHulNt_L19g17_nhI2nEwLADCpyezPdGtdHczj6SJN6FnjpeWXDrOIdTDxZsd7Stb6T
+client_id: messaging-client
+state: Vb9pnRRY4uER1STpREzqhCyzD_CT0gNE_YHBjdemap4=
+scope: profile
+```
 
 302 `http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc?code=UK6l2_-p-1VjjgOr8lRahDmKpg8MvC4GrY0zFk4txmRVlS9zERuwYC2rHtWUtSEQACTsRIit9uWLYrJgvb-USs6OAp7jKoVhqnjAsUU4AmUemKChSiq9wiD9Vk-pLITY&state=djXuffVHeaqHQrn9M-f5XHP8e3BiVo7ARhn4jiYW0eM%3D`
 
@@ -92,7 +105,7 @@ client 会向 server 发送请求 openid 配置的请求，两个一样的请求
 }
 ```
 
-回复的是：
+server 回复的是：
 
 ```json
 {
@@ -122,7 +135,7 @@ server 返回：
 }
 ```
 
-client 还向 server 发起了 `GET /userinfo` 这里应该是 header 有信息，还没确定
+client 还向 server 发起了 `GET /userinfo` 这个请求头 header 有 authorization `Bearer eyJraWQiOiIzOGRkMDYxNS03ZDQ2LTQ1MzAtOWNhYi01Zjg3ODYwYjBjN2YiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJuYmYiOjE2OTc0MzYzNjMsInNjb3BlIjpbIm9wZW5pZCIsInByb2ZpbGUiXSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwIiwiZXhwIjoxNjk3NDM2NjYzLCJpYXQiOjE2OTc0MzYzNjN9.sEcnJGlXu9knX6Nd7F-5oua9reya-Z3nDHm4oMEg99C3YTAYfDZwGnFVgb3SYqG3FovLh9ZpUZbUCeTR5zDCLKmVAV-1ZwEuQkoeoqBDSfzu8yJDbHmyzYbLpFApcHHlXGZrKc5-TgqGn-902aOeimCfgthgHF1yqkbRiuAECznitGuoPIQZJA1M20G8A9VrsDNtE9Vd9E11UX1VgQuCBcrJ31vZGBUpsa_2M8tMTqoA6PQM8ZZQWBZ5YuxkXQX2ov2_DLYrmhd1SkaP8D3kedjxeDWC7-6Fg1c-kf4sjXcIN9AsH7Knp7uUsU066vIbtdx5xgl3PvyQPLlc1yqHXA`
 
 server 返回：
 
