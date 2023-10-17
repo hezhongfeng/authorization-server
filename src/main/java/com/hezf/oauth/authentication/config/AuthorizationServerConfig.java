@@ -121,8 +121,9 @@ public class AuthorizationServerConfig {
 	 */
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().oidcUserInfoEndpoint(CUSTOM_CONSENT_PAGE_URI)
-				.build();
+		// return AuthorizationServerSettings.builder().oidcUserInfoEndpoint(CUSTOM_CONSENT_PAGE_URI)
+		// .build();
+		return AuthorizationServerSettings.builder().build();
 	}
 
 }

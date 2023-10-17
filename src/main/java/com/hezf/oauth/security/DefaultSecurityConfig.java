@@ -9,11 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -92,11 +87,9 @@ public class DefaultSecurityConfig {
 
 
   /**
-   * 如果没有指定passwordEncoder的情况下，DelegatingPasswordEncoder 会根据 {id}encodedPassword 使用对应的密码编码器 
-   * {noop} 使用 NoOpPasswordEncoder 就是原始密码，没经过处理
-   * {bcrypt} 是使用 BCryptPasswordEncoder
-   * {pbkdf2} 使用 Pbkdf2PasswordEncoder
-   * 这种方式可以使用多种加密方式并存
+   * 如果没有指定passwordEncoder的情况下，DelegatingPasswordEncoder 会根据 {id}encodedPassword 使用对应的密码编码器 {noop}
+   * 使用 NoOpPasswordEncoder 就是原始密码，没经过处理 {bcrypt} 是使用 BCryptPasswordEncoder {pbkdf2} 使用
+   * Pbkdf2PasswordEncoder 这种方式可以使用多种加密方式并存
    */
   // // 配置密码解析器，使用BCrypt的方式对密码进行加密和验证
   // public PasswordEncoder passwordEncoder() {
