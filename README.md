@@ -9,6 +9,26 @@ authorization-server
 5. 有 client 的 demo（springboot、nestjs，也有前端，可以进行修改用户信息等操作）
 6. 支持对 consent 的过期管理（比如说，同意一次一个月内有效这种）
 
+## client 端使用
+
+### 登录
+
+1. 浏览器输入 client 域名，点击登录，跳转到 server 端登录
+2. 输入用户名、密码后，跳转回 client 前端，client 前端拿着参数去后端换取信息
+3. client 后端拿着参数去获取 userinfo，完成登录和信息获取
+
+也可以实现多应用的登录，例如登录了 server 后，可以随意的在几个 client 之间切换
+
+### 登出
+
+在 client 前端点击登出，直接在 client 端和 server 都登出，这样可以切换账号
+
+也可以实现多个 client 全部登出
+
+### 应用授权
+
+给应用和用户授权，否则这个应用无法登录微授权的应用
+
 ## 认证过程
 
 ### client 启动
