@@ -6,9 +6,9 @@ logging:
     root: info
     org:
       springframework:
-        web: trace
-        security: trace
-        oauth2: trace
+        web: DEBUG
+        # security: trace
+        # oauth2: trace
 
 spring:
   config:
