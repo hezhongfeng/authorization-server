@@ -19,6 +19,13 @@ authorization-server
 
 也可以实现多应用的登录，例如登录了 server 后，可以随意的在几个 client 之间切换
 
+#### 实现
+
+问题?
+
+1. 登录成功后如何获取 userinfo
+2. 如何跳转到前后端分离的页面
+
 ### 登出
 
 在 client 前端点击登出，直接在 client 端和 server 都登出，这样可以切换账号
@@ -115,7 +122,16 @@ scope: profile
 
 302 到 `http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc?code=8iJ6r5v-heZ8Y6Y8F4MdDLX2FO54mJbN-dehuN6kNPZ1fL11IgsOmChQYT5yDKpPzTmJEWJz-UjBKzXlk87jRkqxblfXzj-EoBXTHFGnk8vMfj2kAhtwxMr-VllYb_3p&state=k4o4H4IBl6CHn_s0k1dN8a-jXVMBntQxEyZAiF0NF-A%3D`
 
-这时候 client 会向 server `HTTP POST http://localhost:9000/oauth2/token`,body 是：
+这时候 client 会向 server `HTTP POST http://localhost:9000/oauth2/token`,
+
+`messaging-client:secret`取 base64 的值`bWVzc2FnaW5nLWNsaWVudDpzZWNyZXQ=`，header 里有：
+
+```json
+authorization:Basic bWVzc2FnaW5nLWNsaWVudDpzZWNyZXQ=
+Content-Type:application/x-www-form-urlencoded;charset=UTF-8
+```
+
+body 是：
 
 ```json
 {
@@ -135,6 +151,22 @@ server 回复的是：
   "id_token": "eyJraWQiOiIwOWRmNzRmZi0wMzBhLTRkYzMtYmYxZi05ODAxMDlhYjRkMmQiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1ZCI6Im1lc3NhZ2luZy1jbGllbnQiLCJhenAiOiJtZXNzYWdpbmctY2xpZW50IiwiYXV0aF90aW1lIjoxNjk3MTc4ODI0LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjkwMDAiLCJleHAiOjE2OTcxODA2MjUsImlhdCI6MTY5NzE3ODgyNSwibm9uY2UiOiJyYXZMMVo3eXloZUFYLThva1BCRnN1Q2t2dHZwUmVoc0JSM2ZxeVZjcVFnIiwic2lkIjoiWUVIaHppUS1JVmhxYWNOYlAzdm1qVl84WThLNlpOeXJxa0RXZFl6NVotMCJ9.Q0d6HQZhGFpff9bok2XocqrighQn-y8WYk1wpmmVB1gAQ9GdHJNJnNvdQoxKNGxBtgL2oraBHTZXLxbRCY49DazmkGygyhdKhewfZjC9MIi7oo4-Zp1pLx8ARJpBoAcKgs9rvu_21oEofLC9t97AaokPMsXgcfUs_59LBFd9kI1tyJ3Y7EC9X5Y6ay6Y92--sQbwoRLEd_tVMxgGvT1iEXdqklFlL790UIxQsMtLPviJbIgbnsC89_I4qnY8j5vQEMNbv6zjroubJcpECO70wm1wYNIw2LmuOchpM-sS7cL1_MWegEKp3Iv6JpLSt27nX1JEu5uql7JY-piuJR8XDg",
   "token_type": "Bearer",
   "expires_in": 299
+}
+```
+
+id_token 中间那段就是信息：
+
+```json
+{
+  "sub": "user1",
+  "aud": "messaging-client",
+  "azp": "messaging-client",
+  "auth_time": 1697695789,
+  "iss": "http://localhost:9000",
+  "exp": 1697697739,
+  "iat": 1697695939,
+  "nonce": "r0QkUee3YVC--qCwZwOGb9twvl0jChxKYh30_Co4",
+  "sid": "1DTKImqP15zxZ8C9gsjZMmhGF7G4JRbC0pfnf7olDXQ"
 }
 ```
 
