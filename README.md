@@ -458,22 +458,37 @@ oidc 流程使用 code 和 state 换取了下面：
 
 这里用的是`HTTP GET http://localhost:9000/oauth2/jwks`这个接口进行验证完整性
 
-可以在 [这里](https://jwt.io/?id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbXktZG9tYWluLmF1dGgwLmNvbSIsInN1YiI6ImF1dGgwfDEyMzQ1NiIsImF1ZCI6IjEyMzRhYmNkZWYiLCJleHAiOjEzMTEyODE5NzAsImlhdCI6MTMxMTI4MDk3MCwibmFtZSI6IkphbmUgRG9lIiwiZ2l2ZW5fbmFtZSI6IkphbmUiLCJmYW1pbHlfbmFtZSI6IkRvZSJ9.bql-jxlG9B_bielkqOnjTY9Di9FillFb6IMQINXoYsw&_gl=1*3ty3bo*rollup_ga*NTg5NzIzOTQzLjE2ODY5MDA2NzU.*rollup_ga_F1G3E656YZ*MTY5MDg3MDA0NS43LjAuMTY5MDg3MDA0NS42MC4wLjA.*_ga*NTg5NzIzOTQzLjE2ODY5MDA2NzU.*_ga_QKMSDV5369*MTY5MDg3MDA1MS4yLjAuMTY5MDg3MDA1MS42MC4wLjA.&_ga=2.20231928.1132847582.1690859462-589723943.1686900675) 进行解码查看，三段 base64 分别对应的是一下的手段信息：
+可以在 [这里](https://jwt.io) 进行解码查看，三段 base64 分别对应的是一下的手段信息：
 
-![](https://gitee.com/hezf/assets/raw/master/202308011416553.png)
-
-对我们最有用的就是下面的 sub 了，也就是用户 id、还有姓名什么的，这样我们就不需要再去拿着 accesstoken 再去查看用户的基本信息了。
+对我们最有用的就是就是用户 id、还有姓名什么的，这样我们就不需要再去拿着 accesstoken 再去查看用户的基本信息了。
 
 ```json
 {
-  "iss": "http://my-domain.auth0.com",
-  "sub": "auth0|123456",
-  "aud": "1234abcdef",
-  "exp": 1311281970,
-  "iat": 1311280970,
-  "name": "Jane Doe",
-  "given_name": "Jane",
-  "family_name": "Doe"
+  "sub": "63eb53c441a5c2f05f24bb03",
+  "aud": "63eb4585156d977101dd3750",
+  "iat": 1676366914,
+  "exp": 1677576514,
+  "iss": "https://oidc-authorization-code.authing.cn/oidc",
+  "nonce": "8bb8727a-e50e-4538-9fff-fa91e5d4cc0a",
+  "name": null,
+  "given_name": null,
+  "middle_name": null,
+  "family_name": null,
+  "nickname": null,
+  "preferred_username": null,
+  "profile": null,
+  "picture": "https://files.authing.co/authing-console/default-user-avatar.png",
+  "website": null,
+  "birthdate": null,
+  "gender": "U",
+  "zoneinfo": null,
+  "locale": null,
+  "updated_at": "2023-02-14T09:26:28.068Z",
+  "email": null,
+  "email_verified": false,
+  "phone_number": "18516829995",
+  "phone_number_verified": true,
+  "username": null
 }
 ```
 
